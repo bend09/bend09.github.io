@@ -1,141 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Resume Terminal</title>
-<style>
-  body {
-    background-color: black;
-    color: white;
-    font-family: monospace;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    cursor: none;
-    height: 100vh;
-    width: 100vw;
-  }
-
-  #terminal {
-    padding: 20px;
-    height: calc(100% - 40px);
-    overflow-y: auto;
-    display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Stack items vertically */
-  }
-
-  #command-line {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: black;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-  }
-
-  #command-input {
-    background-color: transparent;
-    border: none;
-    color: white;
-    font-family: monospace;
-    width: calc(100% - 80px);
-    outline: none;
-    flex-grow: 1;
-    margin-left: 10px;
-  }
-
-  #prompt {
-    margin-right: 10px;
-  }
-
-  .output { /* New class for command output */
-    margin-bottom: 10px; /* Add space between commands and output */
-    width: 100%; /* Make sure output takes full width */
-    display: block;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Trigger Button</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-<div id="terminal"></div>
-<div id="command-line">
-  <span id="prompt">C:\></span><input type="text" id="command-input" autofocus>
-</div>
+  <div>
+    <button onclick="triggerAction()">Trigger Action</button>
+    <div id="status"></div>
+  </div>
 
-<script>
-  const terminal = document.getElementById('terminal');
-  const commandInput = document.getElementById('command-input');
-  const prompt = document.getElementById('prompt');
+  <script>
+    function triggerAction() {
+      const status = document.getElementById('status');
+      status.textContent = 'Sending request...';
 
-  const commands = {
-    'dir': () => {
-      const commandList = Object.keys(commands).join('<br>');
-      const output = document.createElement('div');
-      output.className = 'output';
-      output.innerHTML = `Directory of C:<br><br>${commandList}<br>`;
-      terminal.appendChild(output);
-    },
-    'about': () => {
-      const output = document.createElement('div');
-      output.className = 'output';
-      output.innerHTML = `About Me:<br>-----------------<br>This is a resume terminal.<br>Type 'dir' to see available commands.<br>`;
-      terminal.appendChild(output);
-    },
-    'resume': () => {
-      const output = document.createElement('div');
-      output.className = 'output';
-      output.innerHTML = `Resume:<br>-----------------<br>Name: Your Name<br>Skills: HTML, CSS, JavaScript...<br>Experience: ...<br>`;
-      terminal.appendChild(output);
-    },
-    'contact': () => {
-      const output = document.createElement('div');
-      output.className = 'output';
-      output.innerHTML = `Contact Information:<br>-----------------------<br>Email: your@email.com<br>GitHub: github.com/yourusername<br>`;
-      terminal.appendChild(output);
-    },
-    'clear': () => {
-      terminal.innerHTML = '';
-    },
-    'help': () => {
-      const output = document.createElement('div');
-      output.className = 'output';
-      output.innerHTML = `Help:<br>-----------------<br>Available Commands:<br>dir - Lists all available commands.<br>about - Displays information about the terminal.<br>resume - Displays resume information.<br>contact - Displays contact information.<br>clear - Clears the terminal.<br>help - Displays this help message.<br>`;
-      terminal.appendChild(output);
-    },
-  };
-
-  commandInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      const command = commandInput.value.trim();
-      const inputDiv = document.createElement('div');
-      inputDiv.className = 'output';
-      inputDiv.innerHTML = `${prompt.textContent}${command}<br>`;
-      terminal.appendChild(inputDiv);
-
-      if (commands[command]) {
-        commands[command]();
-      } else {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'output';
-        errorDiv.innerHTML = `Command '${command}' not found.<br>`;
-        terminal.appendChild(errorDiv);
-      }
-      commandInput.value = '';
-      terminal.scrollTop = terminal.scrollHeight;
-    } else if (event.key === 'Tab') {
-      event.preventDefault();
-      const currentInput = commandInput.value.trim();
-      const matchingCommand = Object.keys(commands).find(cmd => cmd.startsWith(currentInput));
-      if (matchingCommand) {
-        commandInput.value = matchingCommand;
-      }
+      fetch('https://trigger.esp8266-server.de/api/?id=13098&hash=0e98c08b663a03c0412f9572bc084e17')
+        .then(response => {
+          if (response.ok) {
+            status.textContent = 'Trigger successful!';
+          } else {
+            status.textContent = 'Trigger failed. Status: ' + response.status;
+          }
+        })
+        .catch(error => {
+          status.textContent = 'Error: ' + error;
+        });
     }
-  });
-
-  commandInput.focus();
-
-  document.documentElement.requestFullscreen().catch(err => {
-    console.error(`Fullscreen error: ${err.message}`);
-  });
-</script>
+  </script>
 </body>
 </html>
